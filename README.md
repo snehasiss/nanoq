@@ -7,10 +7,61 @@ The project is intentionally small. NanoQ is a queue, not a messaging
 platform: it provides named queues, JSON-compatible payloads, acknowledgements,
 negative acknowledgements, visibility timeouts, and at-least-once delivery.
 
-## Status
+## Start the broker
 
-The SQLite storage engine and its public contracts are implemented. The TCP
-broker and Python network client are the next milestones.
+From the repository root, install the package in editable mode and start it:
+
+```bash
+python -m pip install -e .
+python -m nanoq
+```
+
+By default NanoQ listens on `127.0.0.1:8765` and stores messages in
+`db/nanoq.db`. The directory and database are created automatically. Override
+the defaults when needed:
+
+```bash
+python -m nanoq --host 127.0.0.1 --port 8765 --db db/nanoq.db
+```
+
+Stop the broker with Ctrl-C. NanoQ defaults to localhost and is not intended
+for direct public-internet exposure.
+
+## Test producer and consumer behavior
+
+NanoQ is a work queue, not broadcast pub/sub: one `put` publishes work to a
+named queue and one consumer reserves each delivery. Start the broker, then in
+a second terminal publish a message:
+
+```bash
+python - <<'PY'
+from nanoq import NanoQ
+
+q = NanoQ()
+message_id = q.put("demo", {"text": "hello from NanoQ"})
+print("published", message_id)
+PY
+```
+
+In a third terminal consume and acknowledge it:
+
+```bash
+python - <<'PY'
+from nanoq import NanoQ
+
+q = NanoQ()
+message = q.get("demo", timeout=10)
+if message is None:
+    print("no message received")
+else:
+    print("received", message.id, message.data, "attempt", message.attempts)
+    message.ack()
+PY
+```
+
+Running the consumer again should return no message because ACK permanently
+removed it. Replace `message.ack()` with `message.nack()` to verify immediate
+redelivery; the next delivery will have an incremented `attempts` value.
 
 ## Core semantics
 
