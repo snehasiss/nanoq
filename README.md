@@ -12,8 +12,8 @@ negative acknowledgements, visibility timeouts, and at-least-once delivery.
 From the repository root, install the package in editable mode and start it:
 
 ```bash
-python -m pip install -e .
-python -m nanoq
+python3 -m pip install -e .
+python3 -m nanoq
 ```
 
 By default NanoQ listens on `127.0.0.1:8765` and stores messages in
@@ -21,7 +21,7 @@ By default NanoQ listens on `127.0.0.1:8765` and stores messages in
 the defaults when needed:
 
 ```bash
-python -m nanoq --host 127.0.0.1 --port 8765 --db db/nanoq.db
+python3 -m nanoq --host 127.0.0.1 --port 8765 --db db/nanoq.db
 ```
 
 Stop the broker with Ctrl-C. NanoQ defaults to localhost and is not intended
@@ -34,7 +34,7 @@ named queue and one consumer reserves each delivery. Start the broker, then in
 a second terminal publish a message:
 
 ```bash
-python - <<'PY'
+python3 - <<'PY'
 from nanoq import NanoQ
 
 q = NanoQ()
@@ -46,7 +46,7 @@ PY
 In a third terminal consume and acknowledge it:
 
 ```bash
-python - <<'PY'
+python3 - <<'PY'
 from nanoq import NanoQ
 
 q = NanoQ()
